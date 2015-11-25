@@ -1,4 +1,4 @@
-import ConfigParser, logging, datetime, os
+import ConfigParser, logging, datetime, os, collections
 
 from flask import Flask, render_template, request
 
@@ -29,12 +29,21 @@ def home():
 def search_results():
     keywords = request.form['keywords']
     now = datetime.datetime.now()
+    startDate = datetime.datetime.strptime(request.form['start-date'], "%Y-%m-%d").date()
+    endDate = datetime.datetime.strptime(request.form['end-date'], "%Y-%m-%d").date()
+
     results = mc.sentenceCount(keywords,
-        solr_filter=[mc.publish_date_query( datetime.date( 2015, 1, 1), 
-                                            datetime.date( now.year, now.month, now.day) ),
-                     'media_sets_id:1' ])
+        solr_filter=[mc.publish_date_query( startDate, endDate ),
+                     'media_sets_id:1' ], split=True, 
+                     split_start_date=startDate.strftime("%Y-%m-%d"), split_end_date=endDate.strftime("%Y-%m-%d"))
+
+    split_result = collections.OrderedDict(sorted(results['split'].items()))
+    weeks = [key[:10] for key in split_result.keys()[:-3]]
+    mentions = split_result.values()[:-3]
     return render_template("search-results.html", 
-        keywords=keywords, sentenceCount=results['count'] )
+        keywords=keywords, sentenceCount=results['count'], startDate=startDate.strftime('%d, %b %Y'), 
+        endDate=endDate.strftime('%d, %b %Y'), 
+        split=split_result, weeks=weeks, mentions=mentions)
 
 if __name__ == "__main__":
     app.debug = True

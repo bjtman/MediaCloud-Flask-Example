@@ -4,6 +4,47 @@
 
 {% block content %}
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+<script>
+$(function () {
+	var weeks = {{ weeks|tojson }}
+	var mentions = {{ mentions }}
+    $('#chart').highcharts({
+        title: {
+            text: 'Mentions By Week',
+            x: -20 //center
+        },
+        xAxis: {
+            categories: weeks
+        },
+        yAxis: {
+            title: {
+                text: 'Number of mentiones'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'US Mainstream Media',
+            data: mentions
+        }]
+    });
+});
+</script>  
+
+
 <div class="row">
 
   <div class="col-md-12">
@@ -12,10 +53,20 @@
 
     <p>You searched for "{{keywords}}"</p>
 
-    <p>In the US Mainstream Media online there have {{ sentenceCount }} sentences matching your search so far this year.</p>
+    <p>In the US Mainstream Media online there have {{ sentenceCount }} sentences matching your search between {{startDate}} and {{endDate}}</p>
+
+    <div id="chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+<!--     <p><b> Weeks division: <b></p>
+    <ul>
+    	{% for key, value in split.iteritems() %}
+    	<li> {{key}} : {{value}}  </li>
+    	{% endfor %}
+    </ul> -->
+
 
   </div>
 
-</div>    
+</div>  
 
 {% endblock %}
