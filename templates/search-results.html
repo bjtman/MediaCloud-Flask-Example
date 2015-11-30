@@ -11,7 +11,7 @@
 <script>
 $(function () {
 	var weeks = {{ weeks|tojson }}
-	var mentions = {{ mentions }}
+	var mentions = {{ mentions|tojson }}
     $('#chart').highcharts({
         title: {
             text: 'Mentions By Week',
